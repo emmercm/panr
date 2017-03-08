@@ -3,8 +3,29 @@
 set -o nounset
 set -o errexit
 
+
 BLUETOOTH_NAME="panr"
 BRIDGE_NAME="br0"
+BRIDGE_IP=""
+
+while [[ $# > 1 ]]; do
+	KEY="$1"
+	case ${KEY} in
+		-bn|--bluetooth-name)
+			BLUETOOTH_NAME=${2:-${BLUETOOTH_NAME}}
+			shift
+			;;
+		-ip)
+			BRIDGE_IP=${2:-${BRIDGE_IP}}
+			shift
+			;;
+		*)
+			break
+			;;
+	esac
+	shift
+done
+
 
 
 # List all bridges
@@ -32,7 +53,7 @@ function bridge_create() {
 	sudo brctl addbr "$1"
 	sudo brctl setfd "$1" 0
 	sudo brctl stp "$1" off
-	BRIDGE_IP=$(ip_inet_next)
+	BRIDGE_IP=${BRIDGE_IP:-$(ip_inet_next)}
 	sudo ifconfig "$1" $(ipcalc_hostmin "${BRIDGE_IP}") netmask $(ipcalc_netmask "${BRIDGE_IP}") up
 }
 
@@ -159,15 +180,15 @@ function hci_pans() {
 
 # Start a DHCP server on an interface
 function dhcp_start() {
-	BRIDGE_IP=$(interface_ip "${BRIDGE_NAME}")
+	INET_IP=$(interface_ip "$1")
 	CONF=$(mktemp)
 	if [ "$(which udhcpd)" != "" ]; then
 		echo "interface   $1" >> "${CONF}"
-		echo "start       $(ipcalc_network_prefix "${BRIDGE_IP}").100" >> "${CONF}"
-		echo "end         $(ipcalc_hostmax "${BRIDGE_IP}")" >> "${CONF}"
+		echo "start       $(ipcalc_network_prefix "${INET_IP}").100" >> "${CONF}"
+		echo "end         $(ipcalc_hostmax "${INET_IP}")" >> "${CONF}"
 		echo "opt dns     8.8.8.8 8.8.4.4" >> "${CONF}"
-		echo "opt router  $(ipcalc_hostmin "${BRIDGE_IP}")" >> "${CONF}"
-		echo "opt subnet  $(ipcalc_netmask "${BRIDGE_IP}")" >> "${CONF}"
+		echo "opt router  $(ipcalc_hostmin "${INET_IP}")" >> "${CONF}"
+		echo "opt subnet  $(ipcalc_netmask "${INET_IP}")" >> "${CONF}"
 		echo "opt lease   86400" >> "${CONF}"
 		sudo udhcpd "${CONF}"
 	fi
