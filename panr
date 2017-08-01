@@ -34,7 +34,7 @@ done
 
 # List all bridges
 function bridge_list() {
-	brctl show | tail --lines +2 | grep "^\w" | awk '{print $1}'
+	brctl show | tail --lines +2 | grep "^\w" | awk '{print $1}' | sort
 }
 
 # List all interfaces on a bridge
@@ -124,7 +124,7 @@ function ipcalc_hostmax() {
 
 # List all network interfaces
 function interface_list() {
-	comm -23 <(ifconfig | grep "^\w" | awk '{print $1}' | grep --invert-match '^lo$') <(bridge_list)
+	comm -23 <(ifconfig | grep "^\w" | awk '{print $1}' | grep --invert-match '^lo$' | sort) <(bridge_list)
 }
 
 # List all wired (non-wireless) network interfaces
@@ -134,7 +134,7 @@ function interface_wired() {
 
 # List all wireless network interfaces
 function interface_wireless() {
-	iwconfig 2> /dev/null | grep "^\w" | awk '{print $1}'
+	iwconfig 2> /dev/null | grep "^\w" | awk '{print $1}' | sort
 }
 
 # Get the IPv4 address (excluding netmask) of an interface
