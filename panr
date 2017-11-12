@@ -159,7 +159,7 @@ function interface_connected() {
 
 # List all HCI (Bluetooth) interfaces
 function hci_list() {
-	hcitool dev | grep "hci[0-9]\+" | grep -e "${MAC_FILTER}" | awk '{print $1}' | sort
+	hciconfig | grep --after-context 1 "^\w" | sed '$!N;$!N;s/\n/ /g' | grep -e "${MAC_FILTER}" | awk '{print $1}' | sed 's/://' | sort
 }
 
 # Get the MAC of an HCI interface
