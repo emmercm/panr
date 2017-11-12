@@ -8,6 +8,7 @@ BLUETOOTH_NAME="panr"
 BRIDGE_NAME="br0"
 BRIDGE_IP=""
 BRIDGE_DHCP="true"
+MAC_FILTER="[0-9A-F:]\{17\}"
 
 while [[ $# > 0 ]]; do
 	KEY="$1"
@@ -18,6 +19,10 @@ while [[ $# > 0 ]]; do
 			;;
 		-ip)
 			BRIDGE_IP=${2:-${BRIDGE_IP}}
+			shift
+			;;
+		-mf|--mac-filter)
+			MAC_FILTER=${2:-${MAC_FILTER}}
 			shift
 			;;
 		-nd|--no-dhcp)
@@ -154,7 +159,7 @@ function interface_connected() {
 
 # List all HCI (Bluetooth) interfaces
 function hci_list() {
-	hcitool dev | grep "hci[0-9]\+" | awk '{print $1}' | sort
+	hcitool dev | grep "hci[0-9]\+" | grep -e "${MAC_FILTER}" | awk '{print $1}' | sort
 }
 
 # Get the MAC of an HCI interface
