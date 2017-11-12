@@ -129,7 +129,7 @@ function ipcalc_hostmax() {
 
 # List all network interfaces
 function interface_list() {
-	comm -23 <(ifconfig | grep "^\w" | awk '{print $1}' | grep --invert-match '^lo$' | sort) <(bridge_list)
+	comm -23 <(ifconfig | grep "^\w" | awk '{print $1}' | sed 's/://' | grep --invert-match '^lo$' | sort) <(bridge_list)
 }
 
 # List all wired (non-wireless) network interfaces
