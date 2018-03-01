@@ -91,7 +91,6 @@ function ip_inet_next() {
 		ipcalc_network_prefix "${IP}"
 	done) | tail -1 | cut --delimiter "." --fields 3)
 	OCTET=$(expr ${OCTET} + 1)
-	OCTET=$((${OCTET} < 100 ? 100 : ${OCTET}))
 	ipcalc_hostmin "192.168.${OCTET}.0"
 }
 
